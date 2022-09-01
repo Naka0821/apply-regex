@@ -5,19 +5,20 @@ import re
 
 # サイト内のページを見る個数
 MAX_ROOP = 3
-# かける正規表現
+# かける正規表現のリスト
 patterns = ["いかがでしたか","いかがでしょうか"]
 
-def parse_list(list, flag):
-    for pt in patterns:
+def parse_list(list):
+    flag = {}
+    for pt in patterns:             # 初期値設定
         flag[pt] = False
-    for i, el in enumerate(list):
-        if i >= MAX_ROOP:
+    for i, el in enumerate(list):   # リストの各要素(URL)毎に処理
+        if i >= MAX_ROOP:           # ループ回数の監視
             break
-        print(el)
-        text = get_text(el)
-        for pattern in patterns:
-            if flag[pattern]:# たっているフラグは無視
+        # print(el)
+        text = get_text(el)         # BSでテキストのみスクレイピング
+        for pattern in patterns:    # 正規表現リストから各パターンを読み込んで処理
+            if flag[pattern]:   # たっているフラグは無視
                 continue
             else:               # たっていないフラグのみ正規表現をかける
                 try:
@@ -25,32 +26,28 @@ def parse_list(list, flag):
                         flag[pattern] = True
                 except Exception:
                     continue
-    print(flag)
-    print("*************************** one list finish *************************")
+    # print(flag)
+    # print("*************************** one list finish *************************")
     return flag
 
 def get_text(url):
-    if re.match("http.*", url):
+    if re.match("http.*", url):                 # httpから始まらないurlを除外
         try:
             html = requests.get(url).text
             soup = bs(html, "html.parser")
         except Exception:
             return
-        for script in soup(["script", "style"]):
+        for script in soup(["script", "style"]):    # スクリプトとスタイルの除外
             script.decompose()
-        text = soup.get_text()
-        #lines= [line.strip() for line in text.splitlines()]
-        #text="\n".join(line for line in lines if line)
-        #print(text)
+        text = soup.get_text()                      # テキストの取得
         return text
 
-def apply_regex(csv_file):
+def apply_regex(csv_file):                  # csvを引数に受け取り
     dict = {}
-    for i, row in enumerate(csv_file):
-        append = {}
-        append = parse_list(row, append)
-        dict[i] = append
-        
+    for i, row in enumerate(csv_file):      # 行毎の処理(サイト毎の処理)
+        append = parse_list(row)    
+        dict[i] = append                    # {id: {pattern: bool, pattern: bool, ...}, id: {...}, ...}
+                                            # id:int pattern:str bool:bool
     return dict
 
 if __name__ == "__main__":
