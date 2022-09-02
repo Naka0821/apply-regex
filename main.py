@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup as bs
 import re
 
 # サイト内のページを見る個数
-MAX_ROOP = 3
+MAX_ROOP = 30
 # かける正規表現のリスト
 patterns = ["いかがでしたか","いかがでしょうか"]
 
@@ -23,18 +23,16 @@ def parse_list(list):
                 try:
                     if re.search(pattern, text):
                         flag[pattern] = True
-                except Exception:
+                except:
                     continue
     return flag
 
 def get_text(url):
     try:
-        html = requests.get(url).text
-    except Exception:
+        html = requests.get(url, timeout=5.0).text
+    except:
         return
     soup = bs(html, "html.parser")
-    for script in soup(["script", "style"]):    # スクリプトとスタイルの除外
-        script.decompose()
     text = soup.get_text()                      # テキストの取得
     return text
 
