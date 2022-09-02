@@ -15,7 +15,6 @@ def parse_list(list):
     for i, el in enumerate(list):   # リストの各要素(URL)毎に処理
         if i >= MAX_ROOP:           # ループ回数の監視
             break
-        # print(el)
         text = get_text(el)         # BSでテキストのみスクレイピング
         for pattern in patterns:    # 正規表現リストから各パターンを読み込んで処理
             if flag[pattern]:   # たっているフラグは無視
@@ -26,21 +25,18 @@ def parse_list(list):
                         flag[pattern] = True
                 except Exception:
                     continue
-    # print(flag)
-    # print("*************************** one list finish *************************")
     return flag
 
 def get_text(url):
-    if re.match("http.*", url):                 # httpから始まらないurlを除外
-        try:
-            html = requests.get(url).text
-            soup = bs(html, "html.parser")
-        except Exception:
-            return
-        for script in soup(["script", "style"]):    # スクリプトとスタイルの除外
-            script.decompose()
-        text = soup.get_text()                      # テキストの取得
-        return text
+    try:
+        html = requests.get(url).text
+    except Exception:
+        return
+    soup = bs(html, "html.parser")
+    for script in soup(["script", "style"]):    # スクリプトとスタイルの除外
+        script.decompose()
+    text = soup.get_text()                      # テキストの取得
+    return text
 
 def apply_regex(csv_file):                  # csvを引数に受け取り
     dict = {}
