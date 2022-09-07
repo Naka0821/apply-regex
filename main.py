@@ -1,10 +1,11 @@
 import csv
+from types import NoneType
 import requests
 from bs4 import BeautifulSoup as bs
 import re
 
 # サイト内のページを見る個数
-MAX_ROOP = 30
+MAX_ROOP = 20
 # かける正規表現のリスト
 patterns = ["いかがでしたか","いかがでしょうか"]
 
@@ -16,12 +17,15 @@ def parse_list(list):
         if i >= MAX_ROOP:           # ループ回数の監視
             break
         text = get_text(el)         # BSでテキストのみスクレイピング
+        if type(text) == NoneType:  # 取得失敗の場合次へ
+            continue
         for pattern in patterns:    # 正規表現リストから各パターンを読み込んで処理
-            if flag[pattern]:   # たっているフラグは無視
+            if flag[pattern]:       # たっているフラグは無視
                 continue
-            else:               # たっていないフラグのみ正規表現をかける
+            else:                   # たっていないフラグのみ正規表現をかける
+                cmp = re.compile(pattern)
                 try:
-                    if re.search(pattern, text):
+                    if cmp.search(text):
                         flag[pattern] = True
                 except:
                     continue
@@ -33,7 +37,7 @@ def get_text(url):
     except:
         return
     soup = bs(html, "html.parser")
-    text = soup.get_text()                      # テキストの取得
+    text = soup.get_text(strip=True)                      # テキストの取得
     return text
 
 def apply_regex(csv_file):                  # csvを引数に受け取り
