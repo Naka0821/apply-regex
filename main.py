@@ -11,24 +11,27 @@ patterns = ["いかがでしたか","いかがでしょうか"]
 
 def parse_list(list):
     flag = {}
-    for pt in patterns:             # 初期値設定
-        flag[pt] = False
+    for i in range(len(patterns)):             # 初期値設定
+        key = "regex"+str(i+1);
+        flag[key] = 0
     for i, el in enumerate(list):   # リストの各要素(URL)毎に処理
         if i >= MAX_ROOP:           # ループ回数の監視
             break
         text = get_text(el)         # BSでテキストのみスクレイピング
         if type(text) == NoneType:  # 取得失敗の場合次へ
             continue
-        for pattern in patterns:    # 正規表現リストから各パターンを読み込んで処理
-            if flag[pattern]:       # たっているフラグは無視
+        for i,pattern in enumerate(patterns):    # 正規表現リストから各パターンを読み込んで処理
+            key = "regex"+str(i+1);
+            if flag[key]:       # たっているフラグは無視
                 continue
             else:                   # たっていないフラグのみ正規表現をかける
                 cmp = re.compile(pattern)
                 try:
                     if cmp.search(text):
-                        flag[pattern] = True
+                        flag[key] = 1
                 except:
                     continue
+    print(flag)
     return flag
 
 def get_text(url):
