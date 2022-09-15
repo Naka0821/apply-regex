@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup as bs
 import re
 
 # サイト内のページを見る個数
-MAX_ROOP = 3
+MAX_ROOP = 20
 # かける正規表現のリスト
 patterns = ["いかがでしたか","いかがでしょうか"]
 
@@ -47,8 +47,8 @@ def apply_regex(csv_file):                  # csvを引数に受け取り
     dict = {}
     for i, row in enumerate(csv_file):      # 行毎の処理(サイト毎の処理)
         append = parse_list(row)    
-        dict[i+1] = append                    # {id: {pattern: bool, pattern: bool, ...}, id: {...}, ...}
-                                            # id:int pattern:str bool:bool
+        dict[i+1] = append                  # {id: {regex#: bool, regex#: bool, ...}, id: {...}, ...}
+                                            # id:int regex#:str bool:int{0,1}
     return dict
 
 if __name__ == "__main__":
